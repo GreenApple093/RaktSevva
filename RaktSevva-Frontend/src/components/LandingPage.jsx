@@ -1,9 +1,12 @@
 import { FaHospital, FaDonate } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import ImgLogo from '../assets/rakt.png'
-import ImgLogoNoBg from '../assets/rakt-removebg-preview.png'
+
 
 const LandingPage = () => {
+
+    
+
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-red-100">
             <header className="text-center mb-10 flex-col">
@@ -49,12 +52,12 @@ const LandingPage = () => {
                     REGISTER
                 </Link>
             </div>
-        
-            {/* Add subtle animations */ }
-    <div className="absolute top-10 left-5 w-24 h-20 rounded-full">
-        <img className='rounded-xl' src={ImgLogo} alt="" />
-    </div>
-            
+
+            {/* Add subtle animations */}
+            <div className="absolute top-10 left-5 w-24 h-20 rounded-full">
+                <img className='rounded-xl' src={ImgLogo} alt="" />
+            </div>
+
         </div >
     );
 };

@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import imgLogo from "../assets/rakt.png"; // Ensure the image path is correct
 import { useNavigate } from "react-router-dom";
-
+import axios from "axios";
 const Login = () => {
     const [formData, setFormData] = useState({
         username: "",
+        email:"",
         password: "",
         role: "",
     });
@@ -18,24 +19,44 @@ const Login = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const { username, password, role } = formData;
+        const { username, password, role, email } = formData;
 
-        if (!username || !password || !role) {
+        if (!username || !email || !password || !role) {
             setError("Please enter all fields properly!");
             return;
         }
 
         setError(""); // Clear any existing errors
+        try{
+            const res = await axios.post('http://localhost:3000/api/users/login',{
+                email,
+                password,
+                role
+            })
 
-        // Based on the role, redirect to the correct dashboard
-        if (role === "hospital") {
-            navigate("/hospital-dashboard");  // Redirect to the hospital dashboard
-        } else if (role === "bloodbank") {
-            navigate("/blood-bank-dashboard");  // Redirect to the blood bank dashboard
-        } else if (role === "camp") {
-            navigate("/camp");  // Redirect to the donation camp dashboard
+            if(res.status === 201){
+                console.log("Login successful");
+                if (role === "hospital") {
+                    navigate("/hospital-dashboard");  // Redirect to the hospital dashboard
+                } else if (role === "bloodbank") {
+                    navigate("/blood-bank-dashboard");  // Redirect to the blood bank dashboard
+                } else if (role === "camp") {
+                    navigate("/camp");  // Redirect to the donation camp dashboard
+                }
+            }
+        }catch(error){
+            console.log("Error while logging in",error);
+            if(error.status == 403){
+                setError("Unauthorized login iski topi uske sar?!")
+            }
+            else if(error.status == 409){
+                setError("Invalid Password!")
+            }
+            else if(error.status == 400){
+                setError("User not found")
+            }
         }
     };
 
@@ -61,18 +82,36 @@ const Login = () => {
                                 htmlFor="username"
                                 className="block text-gray-700 font-medium mb-2"
                             >
-                                Username or Email
+                                Username
                             </label>
                             <input
                                 type="text"
                                 name="username"
                                 id="username"
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-300 focus:outline-none"
-                                placeholder="Enter your username or email"
+                                placeholder="Enter your username"
                                 value={formData.username}
                                 onChange={handleChange}
                             />
                         </div>
+                        <div className="mb-4">
+                            <label
+                                htmlFor="email"
+                                className="block text-gray-700 font-medium mb-2"
+                            >
+                                Email
+                            </label>
+                            <input
+                                type="email"
+                                name="email"
+                                id="email"
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-300 focus:outline-none"
+                                placeholder="Enter your email"
+                                value={formData.email}
+                                onChange={handleChange}
+                            />
+                        </div>
+
 
                         {/* Password */}
                         <div className="mb-4">

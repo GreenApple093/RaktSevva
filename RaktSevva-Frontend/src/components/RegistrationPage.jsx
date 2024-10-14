@@ -1,42 +1,65 @@
 import React, { useState } from "react";
 import imgLogo from "../assets/rakt.png"; // Ensure the image path is correct
-
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 const Register = () => {
     const [formData, setFormData] = useState({
-        username: "",
         email: "",
+        username: "",
         password: "",
         confirmPassword: "",
-        role: "",
+        role: ""
     });
-    const [error, setError] = useState("");
+    const [errorMessage, setErrorMessage] = useState('');
+    const navigate = useNavigate();
 
+    // Handle form input change
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
+        setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = (e) => {
+    // Handle form submission
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const { username, email, password, confirmPassword, role } = formData;
 
-        if (!username || !email || !password || !confirmPassword || !role) {
-            setError("Please fill out all fields properly!");
+        setErrorMessage("");
+
+        if (formData.password !== formData.confirmPassword) {
+            setErrorMessage("Passwords do not match");
             return;
         }
 
-        if (password !== confirmPassword) {
-            setError("Passwords do not match!");
-            return;
+        try {
+            const res = await axios.post('http://localhost:3000/api/users/register', {
+                email: formData.email,
+                username: formData.username,
+                password: formData.password,
+                role: formData.role
+            });
+
+            if (res.status === 201) {
+                alert("Registration Successful");
+                navigate("/login");
+            }
+        } catch (error) {
+            console.log("Error in registering:", error);
+            console.log(error.status);
+            
+            if (formData.role === "") {
+                setErrorMessage("Please select one of the roles provided!")
+            }
+            if (error.response && error.response.status == 409) {
+                setErrorMessage("User already exists!");
+            }
+            if (formData.username === "") {
+                setErrorMessage("Please provide username!")
+            }            
+            if (formData.email === "") {
+                setErrorMessage("Please provide email!")
+            }       
+            
         }
-
-        setError(""); // Clear any existing errors
-
-        // Mock registration for now, API call will go here
-        console.log("Registering with", formData);
     };
 
     return (
@@ -51,8 +74,8 @@ const Register = () => {
                         </h2>
                     </div>
 
-                    {error && (
-                        <div className="text-red-500 text-center mb-4">{error}</div>
+                    {errorMessage && (
+                        <div className="text-red-500 text-center mb-4">{errorMessage}</div>
                     )}
 
                     <form onSubmit={handleSubmit}>
