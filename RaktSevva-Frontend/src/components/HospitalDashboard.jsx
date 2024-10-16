@@ -13,6 +13,7 @@ import {
 } from 'chart.js';
 import BloodBankOverviewImg from "../assets/bloodBankOverview.png";
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 // Register the components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -55,6 +56,41 @@ function HospitalDashboard() {
         });
     };
 
+    const [formData, setFormData] = useState({
+        hospitalName: '',
+        bloodType: 'A+',
+        quantity: 0,
+        urgency: 'Normal',
+    });
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: value,
+        });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        // Handle form submission, like sending data to the server
+        try {
+            const res = await axios.post('http://localhost:3000/api/users/hospital-requestblood', {
+                hospital_name: formData.hospitalName,
+                blood_type: formData.bloodType,
+                quantity: formData.quantity,
+                urgency: formData.urgency,
+            })
+
+            if(res.status === 200){
+                alert("Request Submitted successfully!")
+            }
+        } catch (error) {
+            console.log("Error in registering:", error);
+            console.log(error.status);
+        }
+    };
+
     return (
         <>
             <div className='bg-red-100 w-full min-h-screen'>
@@ -80,15 +116,15 @@ function HospitalDashboard() {
                                     <FaTachometerAlt /><a href="#inventory-overview">  Inventory Overview</a>
                                 </li>
                                 <li className="cursor-pointer hover:text-red-800 transition duration-200 flex items-center gap-2 pr-7">
-                                    <FaClipboardList/> <a href="#status"> Status</a>
+                                    <FaClipboardList /> <a href="#status"> Status</a>
                                 </li>
                             </ul>
 
                         </div>
-                        <button className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-lg font-semibold" 
-                onClick={handleLogOut}>
-                    Logout
-                </button>
+                        <button className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-lg font-semibold"
+                            onClick={handleLogOut}>
+                            Logout
+                        </button>
                     </div>
                 </div>
 
@@ -114,10 +150,28 @@ function HospitalDashboard() {
                         {/* Request Form */}
                         <div className='bg-white rounded-2xl w-full p-10 shadow-lg shadow-red-400'>
                             <h2 className="text-4xl font-bold text-red-600 mb-6">Request Blood</h2>
-                            <form className="space-y-6">
+                            <form className="space-y-6" onSubmit={handleSubmit}>
+                                <div>
+                                    <label className="block text-gray-700 font-medium mb-2" htmlFor="hospitalName">Hospital Name</label>
+                                    <input
+                                        type="text"
+                                        id="hospitalName"
+                                        name="hospitalName"
+                                        value={formData.hospitalName}
+                                        onChange={handleChange}
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-300"
+                                        placeholder="Enter Hospital Name"
+                                    />
+                                </div>
                                 <div>
                                     <label className="block text-gray-700 font-medium mb-2" htmlFor="bloodType">Blood Type</label>
-                                    <select id="bloodType" className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-300">
+                                    <select
+                                        id="bloodType"
+                                        name="bloodType"
+                                        value={formData.bloodType}
+                                        onChange={handleChange}
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-300"
+                                    >
                                         <option value="A+">A+</option>
                                         <option value="A-">A-</option>
                                         <option value="B+">B+</option>
@@ -130,11 +184,25 @@ function HospitalDashboard() {
                                 </div>
                                 <div>
                                     <label className="block text-gray-700 font-medium mb-2" htmlFor="quantity">Quantity (Units)</label>
-                                    <input type="number" id="quantity" className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-300" placeholder="Enter quantity" />
+                                    <input
+                                        type="number"
+                                        id="quantity"
+                                        name="quantity"
+                                        value={formData.quantity}
+                                        onChange={handleChange}
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-300"
+                                        placeholder="Enter quantity"
+                                    />
                                 </div>
                                 <div>
                                     <label className="block text-gray-700 font-medium mb-2" htmlFor="urgency">Urgency</label>
-                                    <select id="urgency" className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-300">
+                                    <select
+                                        id="urgency"
+                                        name="urgency"
+                                        value={formData.urgency}
+                                        onChange={handleChange}
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-300"
+                                    >
                                         <option value="Normal">Normal</option>
                                         <option value="Urgent">Urgent</option>
                                     </select>
@@ -143,6 +211,7 @@ function HospitalDashboard() {
                                     Submit Request
                                 </button>
                             </form>
+
                         </div>
                     </section>
 
