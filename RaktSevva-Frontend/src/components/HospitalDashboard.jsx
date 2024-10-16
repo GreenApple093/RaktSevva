@@ -14,6 +14,7 @@ import {
 import BloodBankOverviewImg from "../assets/bloodBankOverview.png";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import PatientUsageForm from './PatientUsageForm';
 // Register the components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -82,7 +83,7 @@ function HospitalDashboard() {
                 urgency: formData.urgency,
             })
 
-            if(res.status === 200){
+            if (res.status === 200) {
                 alert("Request Submitted successfully!")
             }
         } catch (error) {
@@ -242,16 +243,8 @@ function HospitalDashboard() {
                                 }}
                             />
                         </div>
-                        {/* Text Section */}
-                        <div className='w-full pt-20 pr-10 pl-10'>
-                            <h2 className="text-3xl font-bold text-red-600 mb-6">Blood Usage</h2>
-                            <p className="text-lg text-gray-700 mb-6">
-                                Maintaining an accurate record of blood usage is essential for efficient hospital resource management and patient care. This feature allows hospitals to track how much blood is being used during surgeries, emergencies, and transfusions.
-                            </p>
-                            <p className="text-lg text-gray-700 mb-6">
-                                Whether it's a routine surgery or an emergency transfusion, having real-time insights into blood consumption ensures no time is wasted, and life-saving resources are readily accessible.
-                            </p>
-                        </div>
+                        {/* Form Section */}
+                        <PatientUsageForm />
                     </section>
 
                     {/* Inventory Overview Section */}

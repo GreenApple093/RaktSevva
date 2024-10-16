@@ -109,3 +109,33 @@ exports.requestBlood = async (req, res) => {
         res.status(500).json({ error: 'An error occurred while processing your request' });
     }
 };
+
+exports.patientUsage = async (req, res) => {
+    try{    
+        const { blood_type, quantity, disease, patient_name } = req.body; // Ensure 'hospital_name' is passed correctly
+
+        // Validate inputs
+        if (!blood_type || !quantity || !disease || !patient_name) {
+            console.log(blood_type);
+            console.log(quantity);
+            console.log(disease);
+            console.log(patient_name);
+            return res.status(400).json({ error: 'All fields are required' });
+            
+        }
+
+        // Insert the blood request into the bloodRequests table
+        const query = `
+            INSERT INTO patient_details (blood_type, quantity, disease, patient_name)
+            VALUES (?, ?, ?, ?)
+        `;
+
+        // Execute the query without wrapping in `db.query` unnecessarily
+        await queryAsync(query, [blood_type, quantity, disease, patient_name]);
+
+        return res.status(200).json({ message: 'Patient details submitted successfully' });
+    }catch(error){
+        console.error("Error while adding patient's details");
+        res.status(500).json({message : 'Internal server error!'})
+    }
+}
