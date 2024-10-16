@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 exports.registerUser = async (req, res) => {
     try {
         const { email, username, password, role } = req.body;
-        
+
         if (!email || !username || !password || !role) {
             return res.status(400).json({ message: 'Please provide all required details' });
         }
@@ -17,7 +17,7 @@ exports.registerUser = async (req, res) => {
             return res.status(409).json({ message: 'User already exists' });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10); 
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         // Insert new user
         const insertUserQuery = 'INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)';
@@ -47,28 +47,28 @@ const queryAsync = (query, values) => {
 
 exports.loginUser = async (req, res) => {
     try {
-        const { email, password,role } = req.body;
+        const { email, password, role } = req.body;
         // console.log('Email received for login:', email);
         // console.log('Password received for login:', password);
 
         const userCheckQuery = 'SELECT password,role FROM users WHERE email = ?';
         const result = await queryAsync(userCheckQuery, [email]);
         console.log(result);
-        console.log("Entered password",password);
-        const hashedPassword = await bcrypt.hash(password, 10); 
+        console.log("Entered password", password);
+        const hashedPassword = await bcrypt.hash(password, 10);
         console.log(hashedPassword);
-        
+
         if (result && result.length > 0) {
             const existingUser = result[0];
             console.log(existingUser.role);
-            console.log("actual password : ",existingUser.password);
+            console.log("actual password : ", existingUser.password);
             console.log(bcrypt.compare(password, existingUser.password));
-            
+
             if (await bcrypt.compare(password, existingUser.password) && role == existingUser.role) {
-                return res.status(201).json({ message: 'Login successful'});
-            } else if(role != existingUser.role){
+                return res.status(201).json({ message: 'Login successful' });
+            } else if (role != existingUser.role) {
                 return res.status(403).json({ message: 'Unauthorized login!' });
-            }else{
+            } else {
                 return res.status(409).json({ message: 'Invalid Password!' });
             }
         } else {
@@ -91,7 +91,7 @@ exports.requestBlood = async (req, res) => {
             console.log(urgency);
             console.log(hospital_name);
             return res.status(400).json({ error: 'All fields are required' });
-            
+
         }
 
         // Insert the blood request into the bloodRequests table
@@ -111,7 +111,7 @@ exports.requestBlood = async (req, res) => {
 };
 
 exports.patientUsage = async (req, res) => {
-    try{    
+    try {
         const { blood_type, quantity, disease, patient_name } = req.body; // Ensure 'hospital_name' is passed correctly
 
         // Validate inputs
@@ -121,7 +121,7 @@ exports.patientUsage = async (req, res) => {
             console.log(disease);
             console.log(patient_name);
             return res.status(400).json({ error: 'All fields are required' });
-            
+
         }
 
         // Insert the blood request into the bloodRequests table
@@ -134,8 +134,25 @@ exports.patientUsage = async (req, res) => {
         await queryAsync(query, [blood_type, quantity, disease, patient_name]);
 
         return res.status(200).json({ message: 'Patient details submitted successfully' });
-    }catch(error){
+    } catch (error) {
         console.error("Error while adding patient's details");
-        res.status(500).json({message : 'Internal server error!'})
+        res.status(500).json({ message: 'Internal server error!' })
     }
 }
+
+exports.bloodUsage = async (req, res) => {
+    try {
+        const query = `
+            SELECT blood_type, SUM(quantity) AS total_quantity 
+            FROM patient_details 
+            GROUP BY blood_type
+        `;
+
+        const result = await queryAsync(query);
+
+        return res.status(200).json(result);
+    } catch (error) {
+        console.error('Error fetching blood usage data:', error);
+        res.status(500).json({ error: 'Failed to retrieve blood usage data' });
+    }
+};

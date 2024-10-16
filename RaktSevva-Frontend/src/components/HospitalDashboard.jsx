@@ -15,23 +15,65 @@ import BloodBankOverviewImg from "../assets/bloodBankOverview.png";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import PatientUsageForm from './PatientUsageForm';
+import { useEffect } from 'react';
 // Register the components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 function HospitalDashboard() {
     // Sample data for the Blood Usage chart
-    const bloodUsageData = {
+    const [bloodUsageData, setBloodUsageData] = useState({
         labels: ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'], // Blood types
         datasets: [
             {
-                label: 'Blood Bags Available',
-                data: [15, 5, 10, 7, 20, 3, 8, 2], // Blood bag quantities
+                label: 'Blood Bags Used',
+                data: [0, 0, 0, 0, 0, 0, 0, 0], // Initialize with zeros
                 backgroundColor: 'rgba(255, 99, 132, 0.6)', // Bar color
                 borderColor: 'rgba(255, 99, 132, 1)', // Border color
                 borderWidth: 1,
             },
         ],
-    };
+    });
+
+    useEffect(() => {
+        const fetchBloodUsage = async () => {
+            try {
+                const response = await axios.get('http://localhost:3000/api/users/hospital-bloodusage');
+                const fetchedData = response.data;
+
+                // Initialize blood types and their quantities
+                const bloodQuantities = {
+                    'A+': 0,
+                    'A-': 0,
+                    'B+': 0,
+                    'B-': 0,
+                    'O+': 0,
+                    'O-': 0,
+                    'AB+': 0,
+                    'AB-': 0,
+                };
+
+                // Map fetched data to the correct blood types
+                fetchedData.forEach((item) => {
+                    bloodQuantities[item.blood_type] = item.total_quantity;
+                });
+
+                // Update chart data
+                setBloodUsageData((prevData) => ({
+                    ...prevData,
+                    datasets: [
+                        {
+                            ...prevData.datasets[0],
+                            data: Object.values(bloodQuantities), // Update with the fetched data
+                        },
+                    ],
+                }));
+            } catch (error) {
+                console.error('Error fetching blood usage data', error);
+            }
+        };
+
+        fetchBloodUsage();
+    }, []);
     const navigate = useNavigate();
 
     const handleLogOut = () => {
