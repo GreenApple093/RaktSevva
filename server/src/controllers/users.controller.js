@@ -156,3 +156,18 @@ exports.bloodUsage = async (req, res) => {
         res.status(500).json({ error: 'Failed to retrieve blood usage data' });
     }
 };
+
+exports.getInventoryUpdate = async (req, res) => {
+    try{
+        const query = `
+            SELECT blood_type, quantity
+            FROM blood_bank_inventory
+        `;
+        const result = await queryAsync(query);
+        console.log(result);
+        return res.status(200).json({message : "Data retrieval successful!"})
+    }catch(error){
+        console.error("Error in fetching inventory : ",error);
+        
+    }
+};

@@ -8,6 +8,7 @@ router.post('/login', usersController.loginUser);
 router.post('/hospital-requestblood', usersController.requestBlood);
 router.post('/hospital-patient', usersController.patientUsage);
 router.get('/hospital-bloodusage', usersController.bloodUsage);
+router.get('/hospital-getInventoryUpdates', usersController.getInventoryUpdate);
 
 // Add more routes here as needed
 

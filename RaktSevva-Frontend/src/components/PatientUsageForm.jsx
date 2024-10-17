@@ -111,7 +111,7 @@ function PatientUsageForm() {
                     />
                 </div>
                 <button type="submit" className="w-full p-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition duration-200">
-                    Submit Request
+                    Submit Details
                 </button>
             </form>
 

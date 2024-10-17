@@ -80,24 +80,40 @@ function HospitalDashboard() {
         navigate("/")
     }
     // State to manage inventory data (for refreshing)
-    const [inventoryData, setInventoryData] = useState({
-        APlus: 20,
-        OMinus: 5,
-        BPlus: 12,
-        // Add more blood types as needed
-    });
+    const [inventoryData, setInventoryData] = useState([]);
 
     // Function to refresh inventory data (dummy function for now)
-    const refreshData = () => {
-        // Logic to fetch new data goes here
-        // For now, we'll just randomize the inventory for demonstration
-        setInventoryData({
-            APlus: Math.floor(Math.random() * 30),
-            OMinus: Math.floor(Math.random() * 10),
-            BPlus: Math.floor(Math.random() * 15),
-            // Update other types similarly
-        });
+    const refreshData = async () => {
+        try {
+            const res = await axios.get('http://localhost:3000/api/users/hospital-bloodusage');
+            const fetchedData = res.data;
+            console.log(fetchedData);
+
+            // Initialize blood types and their quantities
+            const bloodQuantities = {
+                'A+': 0,
+                'A-': 0,
+                'B+': 0,
+                'B-': 0,
+                'O+': 0,
+                'O-': 0,
+                'AB+': 0,
+                'AB-': 0,
+            };
+
+            // Map fetched data to the correct blood types
+            fetchedData.forEach((item) => {
+                if (bloodQuantities.hasOwnProperty(item.blood_type)) {
+                    bloodQuantities[item.blood_type] = item.total_quantity;
+                }
+            });
+
+            setInventoryData(bloodQuantities)
+        } catch (error) {
+            console.error("Error fetching blood usage data:", error);
+        }
     };
+
 
     const [formData, setFormData] = useState({
         hospitalName: '',
@@ -297,10 +313,14 @@ function HospitalDashboard() {
                                 Here is an overview of the available blood types in the inventory.
                             </p>
                             <ul className="list-disc pl-5 text-lg text-gray-700">
-                                <li>A+: {inventoryData.APlus} bags</li>
-                                <li>O-: {inventoryData.OMinus} bags</li>
-                                <li>B+: {inventoryData.BPlus} bags</li>
-                                {/* Add other blood types as needed */}
+                                <li>A+: {inventoryData['A+']} bags</li>
+                                <li>A-: {inventoryData['A-']} bags</li>
+                                <li>B+: {inventoryData['B+']} bags</li>
+                                <li>B-: {inventoryData['B-']} bags</li>
+                                <li>O+: {inventoryData['O+']} bags</li>
+                                <li>O-: {inventoryData['O-']} bags</li>
+                                <li>AB+: {inventoryData['AB+']} bags</li>
+                                <li>AB-: {inventoryData['AB-']} bags</li>
                             </ul>
                             <button onClick={refreshData} className="mt-4 p-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition duration-200">
                                 Refresh Inventory
