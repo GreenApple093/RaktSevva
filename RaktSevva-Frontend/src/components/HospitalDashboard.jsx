@@ -85,11 +85,16 @@ function HospitalDashboard() {
     // Function to refresh inventory data (dummy function for now)
     const refreshData = async () => {
         try {
-            const res = await axios.get('http://localhost:3000/api/users/hospital-bloodusage');
-            const fetchedData = res.data;
+            const res = await axios.get('http://localhost:3000/api/users/hospital-getInventoryUpdates');
+
+            const fetchedData = res.data
             console.log(fetchedData);
 
-            // Initialize blood types and their quantities
+            if (!Array.isArray(fetchedData)) {
+                throw new Error("Fetched data is not an array");
+            }
+
+            // Initialize blood quantities
             const bloodQuantities = {
                 'A+': 0,
                 'A-': 0,
@@ -104,15 +109,19 @@ function HospitalDashboard() {
             // Map fetched data to the correct blood types
             fetchedData.forEach((item) => {
                 if (bloodQuantities.hasOwnProperty(item.blood_type)) {
-                    bloodQuantities[item.blood_type] = item.total_quantity;
+                    bloodQuantities[item.blood_type] = item.quantity;
                 }
             });
 
-            setInventoryData(bloodQuantities)
+            // Update state with the blood quantities
+            setInventoryData(bloodQuantities);
+
+
         } catch (error) {
             console.error("Error fetching blood usage data:", error);
         }
     };
+
 
 
     const [formData, setFormData] = useState({
@@ -306,29 +315,27 @@ function HospitalDashboard() {
                     </section>
 
                     {/* Inventory Overview Section */}
-                    <section id="inventory-overview" className="bg-red-50 p-8 rounded-lg shadow-lg flex gap-20 shadow-red-400">
-                        <div className='w-full pt-20 pr-10 pl-10'>
+                    <section id="inventory-overview" className="bg-red-50 p-8 rounded-lg shadow-lg flex gap-20 shadow-red-400 justify-center">
+                        <div className='w-full pt-20 pr-10 pl-10 flex-col justify-center items-center'>
                             <h2 className="text-4xl font-bold text-red-600 mb-4">Inventory Overview</h2>
                             <p className="text-lg text-gray-700 mb-6">
                                 Here is an overview of the available blood types in the inventory.
                             </p>
-                            <ul className="list-disc pl-5 text-lg text-gray-700">
-                                <li>A+: {inventoryData['A+']} bags</li>
-                                <li>A-: {inventoryData['A-']} bags</li>
-                                <li>B+: {inventoryData['B+']} bags</li>
-                                <li>B-: {inventoryData['B-']} bags</li>
-                                <li>O+: {inventoryData['O+']} bags</li>
-                                <li>O-: {inventoryData['O-']} bags</li>
-                                <li>AB+: {inventoryData['AB+']} bags</li>
-                                <li>AB-: {inventoryData['AB-']} bags</li>
+                            <ul className="list-none pl-5 text-lg text-gray-700 bg-red-400 p-5 rounded-xl max-w-[50%]">
+                                <li className='bg-white text-center font-bold text-2xl mt-2 rounded-xl '>A+ <span>  : </span> {inventoryData['A+']} bags</li>
+                                <li className='bg-white text-center font-bold text-2xl mt-2 rounded-xl '>A- <span>  : </span> {inventoryData['A-']} bags</li>
+                                <li className='bg-white text-center font-bold text-2xl mt-2 rounded-xl '>B+ <span>  : </span> {inventoryData['B+']} bags</li>
+                                <li className='bg-white text-center font-bold text-2xl mt-2 rounded-xl '>B- <span>  : </span> {inventoryData['B-']} bags</li>
+                                <li className='bg-white text-center font-bold text-2xl mt-2 rounded-xl '>O+ <span>  : </span> {inventoryData['O+']} bags</li>
+                                <li className='bg-white text-center font-bold text-2xl mt-2 rounded-xl '>O- <span>  : </span> {inventoryData['O-']} bags</li>
+                                <li className='bg-white text-center font-bold text-2xl mt-2 rounded-xl '>AB+ <span>  : </span> {inventoryData['AB+']} bags</li>
+                                <li className='bg-white text-center font-bold text-2xl mt-2 rounded-xl '>AB- <span>  : </span> {inventoryData['AB-']} bags</li>
                             </ul>
-                            <button onClick={refreshData} className="mt-4 p-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition duration-200">
+                            <button onClick={refreshData} className="mt-4 p-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition duration-200 flex justify-center">
                                 Refresh Inventory
                             </button>
                         </div>
-                        <div className='bg-white rounded-2xl w-full p-10 shadow-lg shadow-red-400'>
-                            <img className="w-full h-72 rounded-lg" src={BloodBankOverviewImg} alt="Blood Bank Overview" />
-                        </div>
+
                     </section>
 
                     {/* Status Section */}

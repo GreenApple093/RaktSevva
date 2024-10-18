@@ -165,7 +165,7 @@ exports.getInventoryUpdate = async (req, res) => {
         `;
         const result = await queryAsync(query);
         console.log(result);
-        return res.status(200).json({message : "Data retrieval successful!"})
+        return res.status(200).json(result);
     }catch(error){
         console.error("Error in fetching inventory : ",error);
         
