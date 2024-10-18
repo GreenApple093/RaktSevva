@@ -34,7 +34,7 @@ function HospitalDashboard() {
         ],
     });
 
-    useEffect(() => {
+ 
         const fetchBloodUsage = async () => {
             try {
                 const response = await axios.get('http://localhost:3000/api/users/hospital-bloodusage');
@@ -72,8 +72,8 @@ function HospitalDashboard() {
             }
         };
 
-        fetchBloodUsage();
-    }, []);
+        // fetchBloodUsage();
+
     const navigate = useNavigate();
 
     const handleLogOut = () => {
@@ -309,6 +309,9 @@ function HospitalDashboard() {
                                     }
                                 }}
                             />
+                            <button onClick={fetchBloodUsage} className="mt-4 p-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition duration-200 flex justify-center">
+                                Refresh Inventory
+                            </button>   
                         </div>
                         {/* Form Section */}
                         <PatientUsageForm />
