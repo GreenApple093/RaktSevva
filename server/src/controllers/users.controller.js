@@ -171,3 +171,18 @@ exports.getInventoryUpdate = async (req, res) => {
         
     }
 };
+
+exports.getHospitalRequest = async (req, res) => {
+    try{
+        const query = `
+            SELECT hospital_name,blood_type,quantity 
+            FROM blood_requests
+        `
+        const result = await queryAsync(query)
+        console.log(result);
+        return res.status(200).json(result)
+    }catch(error){
+        console.error("Error while fetching request : ",error);
+        
+    }
+}

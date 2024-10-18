@@ -3,13 +3,10 @@ import Chart from "chart.js/auto";
 import imgLogo from "../assets/rakt.png"; // Ensure the image path is correct
 import { FaChartLine, FaHospital, FaBell } from 'react-icons/fa';
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const BloodBankDashboard = () => {
-    const [requests, setRequests] = useState([
-        { id: 1, hospital: "Hospital A", bloodType: "A+", status: "pending" },
-        { id: 2, hospital: "Hospital B", bloodType: "O-", status: "accepted" },
-        { id: 3, hospital: "Hospital C", bloodType: "AB+", status: "rejected" },
-    ]);
+
 
     const [notifications, setNotifications] = useState([]); // Notifications for stock alerts
 
@@ -73,18 +70,25 @@ const BloodBankDashboard = () => {
     }, []); // Empty dependency array ensures this effect runs only once on mount
 
     const handleStatusChange = (id, newStatus) => {
+        // Safely update the requests state
         setRequests((prevRequests) =>
             prevRequests.map((req) =>
                 req.id === id ? { ...req, status: newStatus } : req
             )
         );
-        setNotifications((prevNotifications) =>
-            [
+    
+        // Find the specific request that is being updated
+        const updatedRequest = requests.find((req) => req.id === id);
+    
+        if (updatedRequest) {
+            // Update notifications safely with the updated request's hospital name and new status
+            setNotifications((prevNotifications) => [
                 ...prevNotifications,
-                `${requests.find((req) => req.id === id).hospital}'s request was put into ${newStatus}.`,
-            ]
-        )
+                `${updatedRequest.hospital_name}'s request was put into ${newStatus}.`,
+            ]);
+        }
     };
+    
 
     const getStatusCircle = (status) => {
         switch (status) {
@@ -111,6 +115,29 @@ const BloodBankDashboard = () => {
     const clearNotifications = () => {
         setNotifications([]);
     };
+
+    const [requests, setRequests] = useState([]);
+    useEffect(() => {
+        const fetchHospitalRequests = async () => {
+            try {
+                const result = await axios.get('http://localhost:3000/api/users/hospital-getHospitalRequest');
+                console.log(result);
+                const fetchedData = result.data
+
+                setRequests(fetchedData)
+
+            } catch (error) {
+                console.error("Error fetching hospital inventory updates:", error);
+            }
+        }
+
+        // Call the fetch function
+        fetchHospitalRequests();
+
+    }, []); // Empty dependency array ensures the effect runs only once, after the component mounts
+
+
+
 
     return (
         <div className="flex flex-col max-h-screen min-h-screen bg-red-100">
@@ -142,7 +169,7 @@ const BloodBankDashboard = () => {
                     </ul>
                 </div>
                 <button className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-                onClick={handleLogOut}>
+                    onClick={handleLogOut}>
                     Logout
                 </button>
             </header>
@@ -175,11 +202,12 @@ const BloodBankDashboard = () => {
             {/* Hospital Requests Section */}
             <div className="bg-white p-6 rounded-lg shadow-lg mt-6 mx-8">
                 <h2 className="text-xl font-bold text-red-600 mb-4">Hospital Requests</h2>
-                <table className="w-full text-left">
+                <table className="w-full text-center">
                     <thead>
                         <tr>
                             <th className="py-2">Hospital</th>
                             <th className="py-2">Blood Type</th>
+                            <th className="py-2">Quantity</th>
                             <th className="py-2">Status</th>
                             <th className="py-2">Actions</th>
                         </tr>
@@ -187,19 +215,20 @@ const BloodBankDashboard = () => {
                     <tbody>
                         {requests.map((request) => (
                             <tr key={request.id} className="border-t">
-                                <td className="py-2 flex-col justify-center">{request.hospital}</td>
-                                <td className="py-2 flex-col justify-center">{request.bloodType}</td>
-                                <td className="py-2 flex-col justify-center">{getStatusCircle(request.status)}</td>
-                                <td className="py-2 space-x-2 flex-col justify-center">
+                                <td className="py-2">{request.hospital_name}</td>
+                                <td className="py-2">{request.blood_type}</td>
+                                <td className="py-2">{request.quantity}</td>
+                                <td className="py-2">{getStatusCircle(request.status)}</td> {/* Use dynamic status */}
+                                <td className="py-2 space-x-2">
                                     <button
                                         className="bg-green-500 text-white px-3 py-1 rounded"
-                                        onClick={() => handleStatusChange(request.id, "accepted")}
+                                        onClick={() => handleStatusChange(request.id, "accepted")} 
                                     >
                                         Accept
                                     </button>
                                     <button
                                         className="bg-yellow-500 text-white px-3 py-1 rounded"
-                                        onClick={() => handleStatusChange(request.id, "pending")}
+                                        onClick={() => handleStatusChange(request.id, "pending")} 
                                     >
                                         Pending
                                     </button>
@@ -215,6 +244,7 @@ const BloodBankDashboard = () => {
                     </tbody>
                 </table>
             </div>
+
 
 
 
