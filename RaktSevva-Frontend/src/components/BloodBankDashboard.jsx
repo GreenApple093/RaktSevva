@@ -69,26 +69,34 @@ const BloodBankDashboard = () => {
         };
     }, []); // Empty dependency array ensures this effect runs only once on mount
 
-    const handleStatusChange = (id, newStatus) => {
-        // Safely update the requests state
-        setRequests((prevRequests) =>
-            prevRequests.map((req) =>
-                req.id === id ? { ...req, status: newStatus } : req
-            )
-        );
+    const handleStatusChange = (request_id, newStatus) => {
+        try {
+            // Update the status on the server (if necessary)
+            
+            
+            // Update the request state after a successful status change
+            setRequests((prevRequests) =>
+                prevRequests.map((req) =>
+                    req.request_id === request_id ? { ...req, status: newStatus } : req
+                )
+            );
     
-        // Find the specific request that is being updated
-        const updatedRequest = requests.find((req) => req.id === id);
+            // Find the specific request that is being updated to notify
+            const updatedRequest = requests.find((req) => req.request_id === request_id);
     
-        if (updatedRequest) {
-            // Update notifications safely with the updated request's hospital name and new status
-            setNotifications((prevNotifications) => [
-                ...prevNotifications,
-                `${updatedRequest.hospital_name}'s request was put into ${newStatus}.`,
-            ]);
+            if (updatedRequest) {
+                // Safely add a new notification with the updated request details
+                setNotifications((prevNotifications) => [
+                    ...prevNotifications,
+                    `${updatedRequest.hospital_name}'s request for ${updatedRequest.blood_type} blood was ${newStatus}.`,
+                ]);
+            }
+        } catch (error) {
+            console.error("Error updating status:", error);
         }
     };
-    
+
+
 
     const getStatusCircle = (status) => {
         switch (status) {
@@ -208,33 +216,36 @@ const BloodBankDashboard = () => {
                             <th className="py-2">Hospital</th>
                             <th className="py-2">Blood Type</th>
                             <th className="py-2">Quantity</th>
+                            <th className="py-2">Urgency</th>
                             <th className="py-2">Status</th>
                             <th className="py-2">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {requests.map((request) => (
-                            <tr key={request.id} className="border-t">
+                            <tr key={request.request_id} className="border-t">
+                                
                                 <td className="py-2">{request.hospital_name}</td>
                                 <td className="py-2">{request.blood_type}</td>
                                 <td className="py-2">{request.quantity}</td>
-                                <td className="py-2">{getStatusCircle(request.status)}</td> {/* Use dynamic status */}
+                                <td className="py-2">{request.urgency}</td>
+                                <td className="py-2">{getStatusCircle(request.status) || getStatusCircle("pending")}</td> {/* Use dynamic status */}
                                 <td className="py-2 space-x-2">
                                     <button
                                         className="bg-green-500 text-white px-3 py-1 rounded"
-                                        onClick={() => handleStatusChange(request.id, "accepted")} 
+                                        onClick={() => handleStatusChange(request.request_id, "accepted")}
                                     >
                                         Accept
                                     </button>
                                     <button
                                         className="bg-yellow-500 text-white px-3 py-1 rounded"
-                                        onClick={() => handleStatusChange(request.id, "pending")} 
+                                        onClick={() => handleStatusChange(request.request_id, "pending")}
                                     >
                                         Pending
                                     </button>
                                     <button
                                         className="bg-red-500 text-white px-3 py-1 rounded"
-                                        onClick={() => handleStatusChange(request.id, "rejected")}
+                                        onClick={() => handleStatusChange(request.request_id, "rejected")}
                                     >
                                         Reject
                                     </button>
@@ -256,7 +267,7 @@ const BloodBankDashboard = () => {
                 <ul>
                     {notifications.length > 0 ? (
                         notifications.map((notification, index) => (
-                            <li key={index} className="border-b py-2 text-red-700">
+                            <li key={`notification-${index}`} className="border-b py-2 text-red-700">
                                 {notification}
                             </li>
                         ))
@@ -264,6 +275,7 @@ const BloodBankDashboard = () => {
                         <li className="py-2 text-green-700">No Notifications</li>
                     )}
                 </ul>
+
                 <button
                     onClick={clearNotifications}
                     className="mt-4 bg-yellow-500 text-white px-4 py-2 rounded"

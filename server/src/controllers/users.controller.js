@@ -175,7 +175,7 @@ exports.getInventoryUpdate = async (req, res) => {
 exports.getHospitalRequest = async (req, res) => {
     try{
         const query = `
-            SELECT hospital_name,blood_type,quantity 
+            SELECT request_id,hospital_name,blood_type,quantity,urgency 
             FROM blood_requests
         `
         const result = await queryAsync(query)
