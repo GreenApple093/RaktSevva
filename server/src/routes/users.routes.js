@@ -10,6 +10,7 @@ router.post('/hospital-patient', usersController.patientUsage);
 router.get('/hospital-bloodusage', usersController.bloodUsage);
 router.get('/hospital-getInventoryUpdates', usersController.getInventoryUpdate);
 router.get('/hospital-getHospitalRequest', usersController.getHospitalRequest);
+router.put('/bloodbank-updateStatus', usersController.updateStatus);
 
 // Add more routes here as needed
 

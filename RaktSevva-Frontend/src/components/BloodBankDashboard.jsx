@@ -69,10 +69,10 @@ const BloodBankDashboard = () => {
         };
     }, []); // Empty dependency array ensures this effect runs only once on mount
 
-    const handleStatusChange = (request_id, newStatus) => {
+    const handleStatusChange =  (request_id, newStatus) => {
         try {
             // Update the status on the server (if necessary)
-            
+             axios.put(`http://localhost:3000/api/users/bloodbank-updateStatus`, { request_id, newStatus });
             
             // Update the request state after a successful status change
             setRequests((prevRequests) =>

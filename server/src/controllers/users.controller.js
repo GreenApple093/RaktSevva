@@ -158,7 +158,7 @@ exports.bloodUsage = async (req, res) => {
 };
 
 exports.getInventoryUpdate = async (req, res) => {
-    try{
+    try {
         const query = `
             SELECT blood_type, quantity
             FROM blood_bank_inventory
@@ -166,14 +166,14 @@ exports.getInventoryUpdate = async (req, res) => {
         const result = await queryAsync(query);
         console.log(result);
         return res.status(200).json(result);
-    }catch(error){
-        console.error("Error in fetching inventory : ",error);
-        
+    } catch (error) {
+        console.error("Error in fetching inventory : ", error);
+
     }
 };
 
 exports.getHospitalRequest = async (req, res) => {
-    try{
+    try {
         const query = `
             SELECT request_id,hospital_name,blood_type,quantity,urgency 
             FROM blood_requests
@@ -181,8 +181,30 @@ exports.getHospitalRequest = async (req, res) => {
         const result = await queryAsync(query)
         console.log(result);
         return res.status(200).json(result)
-    }catch(error){
-        console.error("Error while fetching request : ",error);
+    } catch (error) {
+        console.error("Error while fetching request : ", error);
+
+    }
+}
+
+exports.updateStatus = async (req, res) => {
+    try{    
+        const { request_id, newStatus } = req.body;
         
+        const query =  `
+        UPDATE blood_requests
+        SET status = ?
+        where request_id = ?
+        `
+
+        await queryAsync(db.query(query, [newStatus, request_id]));
+
+        // Send success response
+        res.status(200).json({ message: "Status updated successfully" });
+
+        
+    }catch(error){
+        console.error("Error while changing status",error);
+        res.status(500).json({ message: "Error in updating status" });
     }
 }
