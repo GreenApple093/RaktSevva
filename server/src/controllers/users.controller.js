@@ -188,10 +188,11 @@ exports.getHospitalRequest = async (req, res) => {
 }
 
 exports.updateStatus = async (req, res) => {
-    try{    
+    try {
         const { request_id, newStatus } = req.body;
-        
-        const query =  `
+
+
+        const query = `
         UPDATE blood_requests
         SET status = ?
         where request_id = ?
@@ -202,9 +203,9 @@ exports.updateStatus = async (req, res) => {
         // Send success response
         res.status(200).json({ message: "Status updated successfully" });
 
-        
-    }catch(error){
-        console.error("Error while changing status",error);
+
+    } catch (error) {
+        console.error("Error while changing status", error);
         res.status(500).json({ message: "Error in updating status" });
     }
 }
