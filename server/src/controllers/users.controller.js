@@ -209,3 +209,18 @@ exports.updateStatus = async (req, res) => {
         res.status(500).json({ message: "Error in updating status" });
     }
 }
+
+exports.getInventoryUpdateBB = async (req, res) => {
+    try{
+        const query = `SELECT blood_type, quantity
+            FROM actucal_bb_blood_bank_inventory`
+
+        const result = queryAsync(query)
+        console.log(query);
+        return res.status(201).json({message : 'Successfully fetched inventory!'})
+    }
+    catch(err){
+        console.error("Error in fetching inventory : ",err);
+        res.status(500).json({message : 'Error in fetching!'})
+    }
+}

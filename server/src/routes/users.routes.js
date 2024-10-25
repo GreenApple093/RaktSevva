@@ -11,7 +11,7 @@ router.get('/hospital-bloodusage', usersController.bloodUsage);
 router.get('/hospital-getInventoryUpdates', usersController.getInventoryUpdate);
 router.get('/hospital-getHospitalRequest', usersController.getHospitalRequest);
 router.put('/bloodbank-updateStatus', usersController.updateStatus);
-
+router.get('/blood-bank-getInventoryUpdates', usersController.getInventoryUpdateBB)
 // Add more routes here as needed
 
 module.exports = router;
