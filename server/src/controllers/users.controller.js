@@ -213,11 +213,11 @@ exports.updateStatus = async (req, res) => {
 exports.getInventoryUpdateBB = async (req, res) => {
     try{
         const query = `SELECT blood_type, quantity
-            FROM actucal_bb_blood_bank_inventory`
+            FROM actual_bb_blood_bank_inventory`
 
-        const result = queryAsync(query)
+        const result = await queryAsync(query)
         console.log(result);
-        return res.status(201).json({message : 'Successfully fetched inventory!'})
+        return res.status(201).json(result)
     }
     catch(err){
         console.error("Error in fetching inventory : ",err);

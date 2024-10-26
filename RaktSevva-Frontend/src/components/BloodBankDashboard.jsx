@@ -4,86 +4,92 @@ import imgLogo from "../assets/rakt.png"; // Ensure the image path is correct
 import { FaChartLine, FaHospital, FaBell } from 'react-icons/fa';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
+import { Bar } from 'react-chartjs-2'; // Import Chart.js
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+} from 'chart.js';
 const BloodBankDashboard = () => {
 
 
     const [notifications, setNotifications] = useState([]); // Notifications for stock alerts
 
-    const chartRef = useRef(null); // Reference for the chart instance
-    const canvasRef = useRef(null); // Reference for the canvas element
+    
+
+    const [inventory, setInventory] = useState({
+        labels: ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'], // Blood types
+        datasets: [
+            {
+                label: 'Blood Bags Used',
+                data: [0, 0, 0, 0, 0, 0, 0, 0], // Initialize with zeros
+                backgroundColor: 'rgba(255, 99, 132, 0.6)', // Bar color
+                borderColor: 'rgba(255, 99, 132, 1)', // Border color
+                borderWidth: 1,
+            },
+        ],
+    });
 
     useEffect(() => {
-        const ctx = canvasRef.current.getContext("2d");
-
-        // Destroy chart if it already exists to avoid duplication
-        if (chartRef.current) {
-            chartRef.current.destroy();
-        }
-
-        // Create new chart
-        chartRef.current = new Chart(ctx, {
-            type: "bar",
-            data: {
-                labels: ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"],
-                datasets: [
-                    {
-                        label: "Blood Units Available",
-                        data: [50, 20, 45, 10, 30, 15, 40, 25], // Example data
-                        backgroundColor: [
-                            "rgba(255, 0, 0, 1)",
-                            "rgba(255, 0, 0, 1)",
-                            "rgba(255, 0, 0, 1)",
-                            "rgba(255, 0, 0, 1)",
-                            "rgba(255, 0, 0, 1)",
-                            "rgba(255, 0, 0, 1)",
-                            "rgba(255, 0, 0, 1)",
-                            "rgba(255, 0, 0, 1)"
-                        ],
-                        borderColor: "rgba(255, 255, 255, 1)",
-                        borderWidth: 3,
+        const fetchInventory = async () => {
+            try {
+                const res = await axios.get("http://localhost:3000/api/users/blood-bank-getInventoryUpdates");
+                const fetchedData = res.data;
+                console.log("Fetched Data : ", fetchedData);
+    
+                const bloodQuantities = {
+                    'A+': 0, 'A-': 0, 'B+': 0, 'B-': 0, 'O+': 0, 'O-': 0, 'AB+': 0, 'AB-': 0,
+                };
+    
+                // Update blood quantities
+                fetchedData.forEach((item) => {
+                    if (bloodQuantities.hasOwnProperty(item.blood_type)) {
+                        bloodQuantities[item.blood_type] = item.quantity;
                     }
-                ],
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                    },
-                },
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: "#121212", // Customize legend color
+                });
+    
+                // Prepare data for the chart
+                setInventory({
+                    labels: Object.keys(bloodQuantities),
+                    datasets: [
+                        {
+                            label: 'Blood Bags Used',
+                            data: Object.values(bloodQuantities), // Use values from bloodQuantities
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1,
                         },
-                    },
-                },
-            },
-        });
-
-        // Cleanup on unmount or re-render
-        return () => {
-            if (chartRef.current) {
-                chartRef.current.destroy();
+                    ],
+                });
+            } catch (err) {
+                console.error("Error fetching inventory data: ", err);
             }
         };
-    }, []); // Empty dependency array ensures this effect runs only once on mount
+    
+        fetchInventory();
+    }, []);
+    
 
-    const handleStatusChange =  (request_id, newStatus) => {
+
+    const handleStatusChange = (request_id, newStatus) => {
         try {
             // Update the status on the server (if necessary)
-             axios.put(`http://localhost:3000/api/users/bloodbank-updateStatus`, { request_id, newStatus });
-            
+            axios.put(`http://localhost:3000/api/users/bloodbank-updateStatus`, { request_id, newStatus });
+
             // Update the request state after a successful status change
             setRequests((prevRequests) =>
                 prevRequests.map((req) =>
                     req.request_id === request_id ? { ...req, status: newStatus } : req
                 )
             );
-    
+
             // Find the specific request that is being updated to notify
             const updatedRequest = requests.find((req) => req.request_id === request_id);
-    
+
             if (updatedRequest) {
                 // Safely add a new notification with the updated request details
                 setNotifications((prevNotifications) => [
@@ -186,7 +192,27 @@ const BloodBankDashboard = () => {
             <div className="flex-grow p-8 flex flex-col md:flex-row md:justify-between mt-20">
 
                 <div className="bg-white p-6 rounded-lg shadow-lg md:w-1/2">
-                    <canvas id="bloodStockChart" ref={canvasRef} width="400" height="300"></canvas>
+                <Bar className='shadow-inner'
+                                data={inventory}
+                                options={{
+                                    responsive: true,
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            title: {
+                                                display: true,
+                                                text: 'Blood Bags'
+                                            }
+                                        },
+                                        x: {
+                                            title: {
+                                                display: true,
+                                                text: 'Blood Types'
+                                            }
+                                        }
+                                    }
+                                }}
+                            />
                 </div>
 
                 {/* Insights Section */}
@@ -224,7 +250,7 @@ const BloodBankDashboard = () => {
                     <tbody>
                         {requests.map((request) => (
                             <tr key={request.request_id} className="border-t">
-                                
+
                                 <td className="py-2">{request.hospital_name}</td>
                                 <td className="py-2">{request.blood_type}</td>
                                 <td className="py-2">{request.quantity}</td>
