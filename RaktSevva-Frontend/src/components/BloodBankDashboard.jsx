@@ -34,7 +34,7 @@ const BloodBankDashboard = () => {
         ],
     });
 
-    useEffect(() => {
+ 
         const fetchInventory = async () => {
             try {
                 const res = await axios.get("http://localhost:3000/api/users/blood-bank-getInventoryUpdates");
@@ -70,8 +70,7 @@ const BloodBankDashboard = () => {
             }
         };
     
-        fetchInventory();
-    }, []);
+        
     
 
 
@@ -213,6 +212,9 @@ const BloodBankDashboard = () => {
                                     }
                                 }}
                             />
+                            <button onClick={fetchInventory} className="mt-4 p-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition duration-200 flex justify-center">
+                                Refresh Inventory
+                            </button> 
                 </div>
 
                 {/* Insights Section */}
