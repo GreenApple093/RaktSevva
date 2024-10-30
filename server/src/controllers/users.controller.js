@@ -191,15 +191,16 @@ exports.updateStatus = async (req, res) => {
     try {
         const { request_id, newStatus } = req.body;
 
-
+        console.log(newStatus);
         const query = `
         UPDATE blood_requests
         SET status = ?
         where request_id = ?
         `
 
-        await queryAsync(db.query(query, [newStatus, request_id]));
-
+        await queryAsync(query, [newStatus, request_id]);
+        
+        
         // Send success response
         res.status(200).json({ message: "Status updated successfully" });
 
