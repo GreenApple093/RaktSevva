@@ -8,57 +8,53 @@ import AddToInventoryDC from "./AddToInventoryDC";
 
 const DonationCampDashboard = () => {
     const navigate = useNavigate();
+    
+    // Existing states
     const [inventory, setInventory] = useState({
-        labels: ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'], // Blood types
+        labels: ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'],
         datasets: [
             {
                 label: 'Blood Bags Collected',
-                data: [0, 0, 0, 0, 0, 0, 0, 0], // Initialize with zeros
-                backgroundColor: 'rgba(255, 99, 132, 0.6)', // Bar color
-                borderColor: 'rgba(255, 99, 132, 1)', // Border color
+                data: [0, 0, 0, 0, 0, 0, 0, 0],
+                backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                borderColor: 'rgba(255, 99, 132, 1)',
                 borderWidth: 1,
             },
         ],
     });
     const [notifications, setNotifications] = useState([]);
-    const [bloodBagData, setBloodBagData] = useState({
-        labels: [], // Labels for ongoing events
-        datasets: [
-            {
-                label: 'Blood Bags Collected',
-                data: [], // Initialize with empty array
-                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1,
-            },
-        ],
-    });
     const [events, setEvents] = useState([]);
+    
+    // New state for form data
+    const [formData, setFormData] = useState({
+        eventName: "",
+        location: "",
+        date: "",
+        description: ""
+    });
 
+    // Existing functions
     const fetchInventory = async () => {
         try {
             const res = await axios.get("http://localhost:3000/api/users/donation-camp-getInventoryUpdates");
             const fetchedData = res.data;
-            console.log("Fetched Data : ", fetchedData);
 
             const bloodQuantities = {
                 'A+': 0, 'A-': 0, 'B+': 0, 'B-': 0, 'O+': 0, 'O-': 0, 'AB+': 0, 'AB-': 0,
             };
 
-            // Update blood quantities
             fetchedData.forEach((item) => {
                 if (bloodQuantities.hasOwnProperty(item.blood_type)) {
                     bloodQuantities[item.blood_type] = item.quantity;
                 }
             });
 
-            // Prepare data for the chart
             setInventory({
                 labels: Object.keys(bloodQuantities),
                 datasets: [
                     {
                         label: 'Blood Bags Used',
-                        data: Object.values(bloodQuantities), // Use values from bloodQuantities
+                        data: Object.values(bloodQuantities),
                         backgroundColor: 'rgba(255, 99, 132, 0.6)',
                         borderColor: 'rgba(255, 99, 132, 1)',
                         borderWidth: 1,
@@ -79,8 +75,6 @@ const DonationCampDashboard = () => {
         }
     };
 
-
-
     const clearNotifications = () => {
         setNotifications([]);
     };
@@ -89,6 +83,33 @@ const DonationCampDashboard = () => {
         navigate("/");
     };
 
+    // New function to handle form input changes
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value
+        }));
+    };
+
+    // New function to handle form submission
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.post('http://localhost:3000/api/users/camp-addEvent', formData);
+            alert("Event added successfully!");
+            setFormData({
+                eventName: "",
+                location: "",
+                date: "",
+                description: ""
+            });
+            fetchCampEvents(); // Refresh events after adding
+        } catch (error) {
+            console.error("Error adding event:", error);
+            alert("There was an error adding the event.");
+        }
+    };
     return (
         <div className="flex flex-col max-h-screen min-h-screen bg-red-100">
             <header className="p-4 bg-white flex items-center justify-between fixed w-full shadow-xl shadow-red-300 bg-opacity-10 backdrop-blur-lg">
@@ -195,15 +216,15 @@ const DonationCampDashboard = () => {
                 </div>
                 <div className='bg-white rounded-2xl w-[50%] p-10 shadow-lg shadow-red-400 flex-col justify-center'>
                     <h2 className="text-4xl font-bold text-red-600 mb-6">Add New Event</h2>
-                    <form className="space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
                             <label className="block text-gray-700 font-medium mb-2" htmlFor="eventName">Event Name</label>
                             <input
                                 type="text"
                                 id="eventName"
                                 name="eventName"
-                                // value={formData.eventName}
-                                // onChange={handleChange}
+                                value={formData.eventName}
+                                onChange={handleChange}
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-300"
                                 placeholder="Enter Event Name"
                             />
@@ -214,8 +235,8 @@ const DonationCampDashboard = () => {
                                 type="text"
                                 id="location"
                                 name="location"
-                                // value={formData.location}
-                                // onChange={handleChange}
+                                value={formData.location}
+                                onChange={handleChange}
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-300"
                                 placeholder="Enter Event Location"
                             />
@@ -226,8 +247,8 @@ const DonationCampDashboard = () => {
                                 type="date"
                                 id="date"
                                 name="date"
-                                // value={formData.date}
-                                // onChange={handleChange}
+                                value={formData.date}
+                                onChange={handleChange}
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-300"
                             />
                         </div>
@@ -236,8 +257,8 @@ const DonationCampDashboard = () => {
                             <textarea
                                 id="description"
                                 name="description"
-                                // value={formData.description}
-                                // onChange={handleChange}
+                                value={formData.description}
+                                onChange={handleChange}
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-300"
                                 placeholder="Enter a brief description of the event"
                                 rows="4"

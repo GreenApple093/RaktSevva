@@ -199,8 +199,8 @@ exports.updateStatus = async (req, res) => {
         `
 
         await queryAsync(query, [newStatus, request_id]);
-        
-        
+
+
         // Send success response
         res.status(200).json({ message: "Status updated successfully" });
 
@@ -212,7 +212,7 @@ exports.updateStatus = async (req, res) => {
 }
 
 exports.getInventoryUpdateBB = async (req, res) => {
-    try{
+    try {
         const query = `SELECT blood_type, quantity
             FROM actual_bb_blood_bank_inventory`
 
@@ -220,8 +220,39 @@ exports.getInventoryUpdateBB = async (req, res) => {
         console.log(result);
         return res.status(201).json(result)
     }
-    catch(err){
-        console.error("Error in fetching inventory : ",err);
-        res.status(500).json({message : 'Error in fetching!'})
+    catch (err) {
+        console.error("Error in fetching inventory : ", err);
+        res.status(500).json({ message: 'Error in fetching!' })
+    }
+}
+
+exports.addEvent = async (req, res) => {
+    try {
+        const { eventName, location, date,description } = req.body; 
+
+        // Validate inputs
+        if (!eventName || !location || !date || !description) {
+            console.log(eventName);
+            console.log(location);
+            console.log(date);
+            console.log(description);
+            return res.status(400).json({ error: 'All fields are required' });
+
+        }
+
+        // Insert the blood request into the bloodRequests table
+        const query = `
+            INSERT INTO donation_camps (camp_name, location, date, description)
+            VALUES (?, ?, ?, ?)
+        `;
+
+        // Execute the query without wrapping in `db.query` unnecessarily
+        await queryAsync(query, [eventName, location, date, description]);
+
+        return res.status(200).json({ message: 'Blood request submitted successfully' });
+    }
+    catch (err) {
+        console.error("Error while adding event", err);
+
     }
 }
