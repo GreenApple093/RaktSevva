@@ -1,20 +1,32 @@
 import React, { useState, useEffect } from "react";
-import { FaChartLine, FaCampground, FaBell } from 'react-icons/fa';
+import { FaChartLine, FaCampground, FaBell, FaSwatchbook, FaIndustry, FaStore } from 'react-icons/fa';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Bar } from 'react-chartjs-2';
 import imgLogo from "../assets/rakt.png";
+import AddToInventoryDC from "./AddToInventoryDC";
 
 const DonationCampDashboard = () => {
     const navigate = useNavigate();
-
-    const [notifications, setNotifications] = useState([]);
-    const [donorData, setDonorData] = useState({
-        labels: ['Male', 'Female', 'Others'],
+    const [inventory, setInventory] = useState({
+        labels: ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'], // Blood types
         datasets: [
             {
-                label: 'Donor Demographics',
-                data: [0, 0, 0], // Initialize with zeros
+                label: 'Blood Bags Collected',
+                data: [0, 0, 0, 0, 0, 0, 0, 0], // Initialize with zeros
+                backgroundColor: 'rgba(255, 99, 132, 0.6)', // Bar color
+                borderColor: 'rgba(255, 99, 132, 1)', // Border color
+                borderWidth: 1,
+            },
+        ],
+    });
+    const [notifications, setNotifications] = useState([]);
+    const [bloodBagData, setBloodBagData] = useState({
+        labels: [], // Labels for ongoing events
+        datasets: [
+            {
+                label: 'Blood Bags Collected',
+                data: [], // Initialize with empty array
                 backgroundColor: 'rgba(54, 162, 235, 0.6)',
                 borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 1,
@@ -23,30 +35,38 @@ const DonationCampDashboard = () => {
     });
     const [events, setEvents] = useState([]);
 
-    const fetchDonorData = async () => {
+    const fetchInventory = async () => {
         try {
-            const res = await axios.get("http://localhost:3000/api/users/camp-getDonorData");
+            const res = await axios.get("http://localhost:3000/api/users/donation-camp-getInventoryUpdates");
             const fetchedData = res.data;
+            console.log("Fetched Data : ", fetchedData);
 
-            const genderCount = { Male: 0, Female: 0, Others: 0 };
-            fetchedData.forEach((donor) => {
-                genderCount[donor.gender] += 1;
+            const bloodQuantities = {
+                'A+': 0, 'A-': 0, 'B+': 0, 'B-': 0, 'O+': 0, 'O-': 0, 'AB+': 0, 'AB-': 0,
+            };
+
+            // Update blood quantities
+            fetchedData.forEach((item) => {
+                if (bloodQuantities.hasOwnProperty(item.blood_type)) {
+                    bloodQuantities[item.blood_type] = item.quantity;
+                }
             });
 
-            setDonorData({
-                labels: Object.keys(genderCount),
+            // Prepare data for the chart
+            setInventory({
+                labels: Object.keys(bloodQuantities),
                 datasets: [
                     {
-                        label: 'Donor Demographics',
-                        data: Object.values(genderCount),
-                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
+                        label: 'Blood Bags Used',
+                        data: Object.values(bloodQuantities), // Use values from bloodQuantities
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
                         borderWidth: 1,
                     },
                 ],
             });
         } catch (err) {
-            console.error("Error fetching donor data: ", err);
+            console.error("Error fetching inventory data: ", err);
         }
     };
 
@@ -59,10 +79,7 @@ const DonationCampDashboard = () => {
         }
     };
 
-    useEffect(() => {
-        fetchDonorData();
-        fetchCampEvents();
-    }, []);
+
 
     const clearNotifications = () => {
         setNotifications([]);
@@ -86,6 +103,10 @@ const DonationCampDashboard = () => {
                             <span>Insights</span>
                         </li>
                         <li className="flex items-center space-x-2">
+                            <i className="mr-2"><FaStore /></i>
+                            <span>Inventory</span>
+                        </li>
+                        <li className="flex items-center space-x-2">
                             <i className="mr-2"><FaCampground /></i>
                             <span>Events</span>
                         </li>
@@ -102,58 +123,138 @@ const DonationCampDashboard = () => {
 
             <div className="flex-grow p-8 flex flex-col md:flex-row md:justify-between mt-20">
                 <div className="bg-white p-6 rounded-lg shadow-lg md:w-1/2">
-                    <Bar className="shadow-inner"
-                        data={donorData}
+                    <Bar className='shadow-inner'
+                        data={inventory}
                         options={{
                             responsive: true,
                             scales: {
                                 y: {
                                     beginAtZero: true,
-                                    title: { display: true, text: 'Number of Donors' },
+                                    title: {
+                                        display: true,
+                                        text: 'Blood Bags'
+                                    }
                                 },
-                                x: { title: { display: true, text: 'Gender' } },
-                            },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Blood Types'
+                                    }
+                                }
+                            }
                         }}
                     />
-                    <button onClick={fetchDonorData} className="mt-4 p-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition duration-200 flex justify-center">
-                        Refresh Donor Data
+                    <button onClick={fetchInventory} className="mt-4 p-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition duration-200 flex justify-center">
+                        Refresh Inventory
                     </button>
                 </div>
 
                 <div className="bg-white p-6 rounded-lg shadow-lg md:w-1/2 md:ml-6 mt-6 md:mt-0">
                     <h2 className="text-4xl font-bold text-red-600 mb-4 text-center">Insights</h2>
                     <p className="text-black-700 text-lg font-semibold p-5">
-                        Keeping track of donation demographics allows us to gauge engagement across various groups.
-                        This data can help in planning future events and campaigns, ensuring a well-rounded donor base.
+                        Tracking the blood bags collected from ongoing events helps us evaluate the community's contribution and ensures a steady supply for those in need.
                     </p>
                     <p className="text-black-700 text-lg font-semibold p-5">
-                        By organizing frequent camps in underrepresented areas, we can also increase outreach and diversify
-                        the donor community effectively.
+                        By targeting regions with higher turnout, we can strategize for upcoming events and increase overall collections effectively.
                     </p>
                 </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-lg mt-6 mx-8">
-                <h2 className="text-xl font-bold text-red-600 mb-4">Upcoming Events</h2>
-                <table className="w-full text-center">
-                    <thead>
-                        <tr>
-                            <th className="py-2">Event Name</th>
-                            <th className="py-2">Date</th>
-                            <th className="py-2">Location</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {events.map((event, index) => (
-                            <tr key={index} className="border-t">
-                                <td className="py-2">{event.name}</td>
-                                <td className="py-2">{event.date}</td>
-                                <td className="py-2">{event.location}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+
+            <div className="w-full flex h-[50%] p-8 gap-8">
+                <div className='bg-white rounded-2xl w-[50%] p-10 shadow-lg shadow-red-400 flex-col justify-center'>
+                    <h2 className="text-4xl font-bold text-red-600 mb-6">Streamline insertion to Inventory</h2>
+                    <p className="text-2xl font-semibold">Effortlessly manage and add donated blood to the inventory. With a few clicks, ensure each blood bag is recorded accurately, ready for immediate availability. Simplifying inventory updates allows us to keep our lifesaving supplies well-organized and accessible—making every donation count in real time!   </p>
+                </div>
+                <AddToInventoryDC />
             </div>
+
+
+            {/* Add Event Section */}
+            <div className="w-full flex h-[50%] p-8 gap-8">
+                <div className="bg-white rounded-2xl w-[50%] p-10 shadow-lg shadow-red-400 flex-col justify-center">
+                    <h2 className="text-4xl font-bold text-red-600 mb-6">Upcoming Events</h2>
+                    <table className="w-full text-center">
+                        <thead>
+                            <tr>
+                                <th className="py-2">Event Name</th>
+                                <th className="py-2">Date</th>
+                                <th className="py-2">Location</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {events.map((event, index) => (
+                                <tr key={index} className="border-t">
+                                    <td className="py-2">{event.name}</td>
+                                    <td className="py-2">{event.date}</td>
+                                    <td className="py-2">{event.location}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                <div className='bg-white rounded-2xl w-[50%] p-10 shadow-lg shadow-red-400 flex-col justify-center'>
+                    <h2 className="text-4xl font-bold text-red-600 mb-6">Add New Event</h2>
+                    <form className="space-y-6">
+                        <div>
+                            <label className="block text-gray-700 font-medium mb-2" htmlFor="eventName">Event Name</label>
+                            <input
+                                type="text"
+                                id="eventName"
+                                name="eventName"
+                                // value={formData.eventName}
+                                // onChange={handleChange}
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-300"
+                                placeholder="Enter Event Name"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-gray-700 font-medium mb-2" htmlFor="location">Location</label>
+                            <input
+                                type="text"
+                                id="location"
+                                name="location"
+                                // value={formData.location}
+                                // onChange={handleChange}
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-300"
+                                placeholder="Enter Event Location"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-gray-700 font-medium mb-2" htmlFor="date">Event Date</label>
+                            <input
+                                type="date"
+                                id="date"
+                                name="date"
+                                // value={formData.date}
+                                // onChange={handleChange}
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-300"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-gray-700 font-medium mb-2" htmlFor="description">Event Description</label>
+                            <textarea
+                                id="description"
+                                name="description"
+                                // value={formData.description}
+                                // onChange={handleChange}
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-300"
+                                placeholder="Enter a brief description of the event"
+                                rows="4"
+                            ></textarea>
+                        </div>
+
+                        <button type="submit" className="w-full p-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition duration-200">
+                            Submit Event
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+
+
+
+
 
             <div className="bg-white p-6 rounded-lg shadow-lg mt-6 mx-8">
                 <h2 className="text-xl font-bold text-red-600 mb-4">Notifications</h2>
