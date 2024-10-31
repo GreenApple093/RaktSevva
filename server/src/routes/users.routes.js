@@ -13,6 +13,7 @@ router.get('/hospital-getHospitalRequest', usersController.getHospitalRequest);
 router.put('/bloodbank-updateStatus', usersController.updateStatus);
 router.get('/blood-bank-getInventoryUpdates', usersController.getInventoryUpdateBB)
 router.post('/camp-addEvent',usersController.addEvent)
+router.get('/camp-getEvents',usersController.getEvents)
 // Add more routes here as needed
 
 module.exports = router;

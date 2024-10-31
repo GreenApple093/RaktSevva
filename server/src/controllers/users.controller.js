@@ -256,3 +256,18 @@ exports.addEvent = async (req, res) => {
 
     }
 }
+
+exports.getEvents = async (req, res) => {
+    try{
+        const query = `
+            SELECT camp_name,location,date,status
+            FROM donation_camps
+        `
+
+        const result = await queryAsync(query)
+        return res.status(200).json(result)
+    }catch(err){
+        console.error("Error while fetching events",err);
+        res.status(500).json({message : 'Internal Server error in fetching events!'})
+    }
+}

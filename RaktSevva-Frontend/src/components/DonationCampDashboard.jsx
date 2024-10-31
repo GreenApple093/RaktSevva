@@ -6,9 +6,10 @@ import { Bar } from 'react-chartjs-2';
 import imgLogo from "../assets/rakt.png";
 import AddToInventoryDC from "./AddToInventoryDC";
 
+
 const DonationCampDashboard = () => {
     const navigate = useNavigate();
-    
+
     // Existing states
     const [inventory, setInventory] = useState({
         labels: ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'],
@@ -24,7 +25,7 @@ const DonationCampDashboard = () => {
     });
     const [notifications, setNotifications] = useState([]);
     const [events, setEvents] = useState([]);
-    
+
     // New state for form data
     const [formData, setFormData] = useState({
         eventName: "",
@@ -66,14 +67,20 @@ const DonationCampDashboard = () => {
         }
     };
 
+
     const fetchCampEvents = async () => {
         try {
             const result = await axios.get('http://localhost:3000/api/users/camp-getEvents');
+            console.log(result.data);
+
             setEvents(result.data);
         } catch (error) {
             console.error("Error fetching camp events:", error);
         }
     };
+
+
+
 
     const clearNotifications = () => {
         setNotifications([]);
@@ -195,24 +202,32 @@ const DonationCampDashboard = () => {
             <div className="w-full flex h-[50%] p-8 gap-8">
                 <div className="bg-white rounded-2xl w-[50%] p-10 shadow-lg shadow-red-400 flex-col justify-center">
                     <h2 className="text-4xl font-bold text-red-600 mb-6">Upcoming Events</h2>
-                    <table className="w-full text-center">
+                    <div className="h-[80%]">
+                    <table className="w-full text-center ">
                         <thead>
                             <tr>
                                 <th className="py-2">Event Name</th>
                                 <th className="py-2">Date</th>
                                 <th className="py-2">Location</th>
+                                <th className="py-2">Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             {events.map((event, index) => (
                                 <tr key={index} className="border-t">
-                                    <td className="py-2">{event.name}</td>
+                                    <td className="py-2">{event.camp_name}</td>
                                     <td className="py-2">{event.date}</td>
                                     <td className="py-2">{event.location}</td>
+                                    <td className="py-2">{event.status}</td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
+                    </div>
+                    
+                    <button onClick={fetchCampEvents} className="mb-10 p-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition duration-200 flex justify-center">
+                        Refresh Events
+                    </button>
                 </div>
                 <div className='bg-white rounded-2xl w-[50%] p-10 shadow-lg shadow-red-400 flex-col justify-center'>
                     <h2 className="text-4xl font-bold text-red-600 mb-6">Add New Event</h2>
