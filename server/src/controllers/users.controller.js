@@ -301,3 +301,20 @@ exports.addInventoryDC = async (req, res) => {
         res.status(500).json({message :"Internal Server Error"})
     }
 }
+
+exports.getInventoryDC = async (req,res) => {
+    try{
+        const query = `
+        SELECT blood_type,quantity
+        FROM camp_inventory
+        `
+
+        const result = await queryAsync(query)
+
+        return res.status(201).json(result)
+    }
+    catch(err){
+        console.error("Error in fetching the invetory of the Donation Camp",err);
+        return res.status(500).json({message : "Internal Server Error!"})
+    }
+}

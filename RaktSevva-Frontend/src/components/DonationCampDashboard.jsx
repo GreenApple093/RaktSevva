@@ -38,7 +38,7 @@ const DonationCampDashboard = () => {
     // Existing functions
     const fetchInventory = async () => {
         try {
-            const res = await axios.get("http://localhost:3000/api/users/donation-camp-getInventoryUpdates");
+            const res = await axios.get("http://localhost:3000/api/users/camp-getInventoryUpdates");
             const fetchedData = res.data;
 
             const bloodQuantities = {
