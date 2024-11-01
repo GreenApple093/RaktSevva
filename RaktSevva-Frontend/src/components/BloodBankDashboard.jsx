@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
 import imgLogo from "../assets/rakt.png"; // Ensure the image path is correct
-import { FaChartLine, FaHospital, FaBell } from 'react-icons/fa';
+import { FaChartLine, FaHospital, FaBell, FaCampground } from 'react-icons/fa';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Bar } from 'react-chartjs-2'; // Import Chart.js
@@ -19,7 +19,7 @@ const BloodBankDashboard = () => {
 
     const [notifications, setNotifications] = useState([]); // Notifications for stock alerts
 
-    
+
 
     const [inventory, setInventory] = useState({
         labels: ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'], // Blood types
@@ -34,44 +34,44 @@ const BloodBankDashboard = () => {
         ],
     });
 
- 
-        const fetchInventory = async () => {
-            try {
-                const res = await axios.get("http://localhost:3000/api/users/blood-bank-getInventoryUpdates");
-                const fetchedData = res.data;
-                console.log("Fetched Data : ", fetchedData);
-    
-                const bloodQuantities = {
-                    'A+': 0, 'A-': 0, 'B+': 0, 'B-': 0, 'O+': 0, 'O-': 0, 'AB+': 0, 'AB-': 0,
-                };
-    
-                // Update blood quantities
-                fetchedData.forEach((item) => {
-                    if (bloodQuantities.hasOwnProperty(item.blood_type)) {
-                        bloodQuantities[item.blood_type] = item.quantity;
-                    }
-                });
-    
-                // Prepare data for the chart
-                setInventory({
-                    labels: Object.keys(bloodQuantities),
-                    datasets: [
-                        {
-                            label: 'Blood Bags Used',
-                            data: Object.values(bloodQuantities), // Use values from bloodQuantities
-                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            borderWidth: 1,
-                        },
-                    ],
-                });
-            } catch (err) {
-                console.error("Error fetching inventory data: ", err);
-            }
-        };
-    
-        
-    
+
+    const fetchInventory = async () => {
+        try {
+            const res = await axios.get("http://localhost:3000/api/users/blood-bank-getInventoryUpdates");
+            const fetchedData = res.data;
+            console.log("Fetched Data : ", fetchedData);
+
+            const bloodQuantities = {
+                'A+': 0, 'A-': 0, 'B+': 0, 'B-': 0, 'O+': 0, 'O-': 0, 'AB+': 0, 'AB-': 0,
+            };
+
+            // Update blood quantities
+            fetchedData.forEach((item) => {
+                if (bloodQuantities.hasOwnProperty(item.blood_type)) {
+                    bloodQuantities[item.blood_type] = item.quantity;
+                }
+            });
+
+            // Prepare data for the chart
+            setInventory({
+                labels: Object.keys(bloodQuantities),
+                datasets: [
+                    {
+                        label: 'Blood Bags Used',
+                        data: Object.values(bloodQuantities), // Use values from bloodQuantities
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1,
+                    },
+                ],
+            });
+        } catch (err) {
+            console.error("Error fetching inventory data: ", err);
+        }
+    };
+
+
+
 
 
     const handleStatusChange = (request_id, newStatus) => {
@@ -148,8 +148,17 @@ const BloodBankDashboard = () => {
         fetchHospitalRequests();
 
     }, []); // Empty dependency array ensures the effect runs only once, after the component mounts
+    const [events, setEvents] = useState([]);
+    const fetchCampEvents = async () => {
+        try {
+            const result = await axios.get('http://localhost:3000/api/users/camp-getEvents');
+            console.log(result.data);
 
-
+            setEvents(result.data);
+        } catch (error) {
+            console.error("Error fetching camp events:", error);
+        }
+    };
 
 
     return (
@@ -174,6 +183,10 @@ const BloodBankDashboard = () => {
                             <span>Requests</span>
                         </li>
                         <li className="flex items-center space-x-2">
+                            <i className="mr-2"><FaCampground /></i>
+                            <span>Events</span>
+                        </li>
+                        <li className="flex items-center space-x-2">
                             <i className="mr-2">
                                 <FaBell />
                             </i>
@@ -191,30 +204,30 @@ const BloodBankDashboard = () => {
             <div className="flex-grow p-8 flex flex-col md:flex-row md:justify-between mt-20">
 
                 <div className="bg-white p-6 rounded-lg shadow-lg md:w-1/2">
-                <Bar className='shadow-inner'
-                                data={inventory}
-                                options={{
-                                    responsive: true,
-                                    scales: {
-                                        y: {
-                                            beginAtZero: true,
-                                            title: {
-                                                display: true,
-                                                text: 'Blood Bags'
-                                            }
-                                        },
-                                        x: {
-                                            title: {
-                                                display: true,
-                                                text: 'Blood Types'
-                                            }
-                                        }
+                    <Bar className='shadow-inner'
+                        data={inventory}
+                        options={{
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Blood Bags'
                                     }
-                                }}
-                            />
-                            <button onClick={fetchInventory} className="mt-4 p-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition duration-200 flex justify-center">
-                                Refresh Inventory
-                            </button> 
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Blood Types'
+                                    }
+                                }
+                            }
+                        }}
+                    />
+                    <button onClick={fetchInventory} className="mt-4 p-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition duration-200 flex justify-center">
+                        Refresh Inventory
+                    </button>
                 </div>
 
                 {/* Insights Section */}
@@ -284,7 +297,40 @@ const BloodBankDashboard = () => {
                 </table>
             </div>
 
+            <div className="w-full flex justify-center text-center p-5 m-3 min-h-[550px]">
+                <div className="bg-white rounded-2xl w-[90%] p-10 shadow-lg shadow-red-400 flex-col justify-center text-center items-center">
+                    <h2 className="text-4xl font-bold text-red-600 mb-6">Upcoming Events</h2>
+                    <div className="h-[70%] overflow-auto mb-5">
+                        <table className="w-full text-center ">
+                            <thead>
+                                <tr>
+                                    <th className="py-2">Event Name</th>
+                                    <th className="py-2">Date</th>
+                                    <th className="py-2">Location</th>
+                                    <th className="py-2">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {events.map((event, index) => (
+                                    <tr key={index} className="border-t">
+                                        <td className="py-2">{event.camp_name}</td>
+                                        <td className="py-2">{event.date}</td>
+                                        <td className="py-2">{event.location}</td>
+                                        <td className="py-2">{event.status}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
 
+                    <div className="flex justify-center text-2xl">
+                        <button onClick={fetchCampEvents} className=" p-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition duration-200 flex justify-center text-center  w-[20%]">
+                            Refresh Events
+                        </button>
+                    </div>
+
+                </div>
+            </div>
 
 
 
