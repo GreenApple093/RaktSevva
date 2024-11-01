@@ -1,4 +1,4 @@
-Here's a README template that highlights the challenging backend features, focusing on advanced SQL concepts like triggers, the project’s goals in streamlining processes, and adds a humorous touch about the frontend. Adjust the details to fit your specific project!
+
 
 ---
 
