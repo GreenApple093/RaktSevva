@@ -228,10 +228,10 @@ exports.getInventoryUpdateBB = async (req, res) => {
 
 exports.addEvent = async (req, res) => {
     try {
-        const { eventName, location, date,description } = req.body; 
+        const { eventName, location, date,description, eventStatus } = req.body; 
 
         // Validate inputs
-        if (!eventName || !location || !date || !description) {
+        if (!eventName || !location || !date || !description || !eventStatus) {
             console.log(eventName);
             console.log(location);
             console.log(date);
@@ -242,14 +242,14 @@ exports.addEvent = async (req, res) => {
 
         // Insert the blood request into the bloodRequests table
         const query = `
-            INSERT INTO donation_camps (camp_name, location, date, description)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO donation_camps (camp_name, location, date, description,status)
+            VALUES (?, ?, ?, ?, ?)
         `;
 
         // Execute the query without wrapping in `db.query` unnecessarily
-        await queryAsync(query, [eventName, location, date, description]);
+        await queryAsync(query, [eventName, location, date, description, eventStatus]);
 
-        return res.status(200).json({ message: 'Blood request submitted successfully' });
+        return res.status(200).json({ message: 'Event submitted successfully' });
     }
     catch (err) {
         console.error("Error while adding event", err);

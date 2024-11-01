@@ -29,6 +29,7 @@ const DonationCampDashboard = () => {
     // New state for form data
     const [formData, setFormData] = useState({
         eventName: "",
+        eventStatus:"",
         location: "",
         date: "",
         description: ""
@@ -107,6 +108,7 @@ const DonationCampDashboard = () => {
             alert("Event added successfully!");
             setFormData({
                 eventName: "",
+                eventStatus: "",
                 location: "",
                 date: "",
                 description: ""
@@ -198,7 +200,7 @@ const DonationCampDashboard = () => {
             </div>
 
 
-            {/* Add Event Section */}
+                        
             <div className="w-full flex h-[50%] p-8 gap-8">
                 <div className="bg-white rounded-2xl w-[50%] p-10 shadow-lg shadow-red-400 flex-col justify-center">
                     <h2 className="text-4xl font-bold text-red-600 mb-6">Upcoming Events</h2>
@@ -243,6 +245,21 @@ const DonationCampDashboard = () => {
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-300"
                                 placeholder="Enter Event Name"
                             />
+                        </div>
+                        <div>
+                        <label className="block text-gray-700 font-medium mb-2" htmlFor="eventStatus">Event Status</label>
+                                    <select
+                                        id="eventStatus"
+                                        name="eventStatus"
+                                        value={formData.eventStatus}
+                                        onChange={handleChange}
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-300"
+                                    >
+                                        <option value="Scheduled">Scheduled</option>
+                                        <option value="Ongoing">Ongoing</option>
+                                        <option value="Completed">Completed</option>
+                                        
+                                    </select>
                         </div>
                         <div>
                             <label className="block text-gray-700 font-medium mb-2" htmlFor="location">Location</label>
