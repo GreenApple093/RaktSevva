@@ -14,6 +14,7 @@ router.put('/bloodbank-updateStatus', usersController.updateStatus);
 router.get('/blood-bank-getInventoryUpdates', usersController.getInventoryUpdateBB)
 router.post('/camp-addEvent',usersController.addEvent)
 router.get('/camp-getEvents',usersController.getEvents)
+router.post('/camp-addInventory',usersController.addInventoryDC)
 // Add more routes here as needed
 
 module.exports = router;

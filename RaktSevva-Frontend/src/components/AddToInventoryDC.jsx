@@ -4,8 +4,8 @@ import axios from 'axios';
 function AddToInventoryDC() {
     const [formData, setFormData] = useState({
         donorName: '',
-        bloodType: 'A+',
-        quantity: 0,
+        bloodType: "",
+        quantity: "",
         donationDate: '',
     });
 
@@ -21,12 +21,14 @@ function AddToInventoryDC() {
         e.preventDefault();
 
         try {
-            const res = await axios.post('http://localhost:3000/api/donation-camp-inventory', {
-                donor_name: formData.donorName,
-                blood_type: formData.bloodType,
+            const res = await axios.post('http://localhost:3000/api/users/camp-addInventory', {
+                donorName: formData.donorName,
+                bloodType: formData.bloodType,
                 quantity: formData.quantity,
-                donation_date: formData.donationDate
+                donationDate: formData.donationDate
             });
+
+
 
             if (res.status === 200) {
                 alert("Blood bag details added to inventory successfully!");
@@ -34,8 +36,8 @@ function AddToInventoryDC() {
 
             setFormData({
                 donorName: '',
-                bloodType: 'A+',
-                quantity: 0,
+                bloodType: "",
+                quantity: "",
                 donationDate: ''
             });
         } catch (error) {

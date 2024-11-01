@@ -271,3 +271,33 @@ exports.getEvents = async (req, res) => {
         res.status(500).json({message : 'Internal Server error in fetching events!'})
     }
 }
+exports.addInventoryDC = async (req, res) => {
+    try{
+        const {donorName,bloodType,quantity,donationDate} = req.body
+
+        // Validate inputs
+        if (!donorName || !bloodType || !quantity || !donationDate) {
+            console.log(donorName);
+            console.log(bloodType);
+            console.log(quantity);
+            console.log(donationDate);
+            return res.status(400).json({ error: 'All fields are required' });
+
+        }
+
+        // Insert the blood request into the bloodRequests table
+        const query = `
+            INSERT INTO donations (donor_name, blood_type, quantity, donation_date)
+            VALUES (?, ?, ?, ?)
+        `;
+
+        // Execute the query without wrapping in `db.query` unnecessarily
+        await queryAsync(query, [donorName, bloodType, quantity, donationDate]);
+
+        return res.status(200).json({ message: 'Event submitted successfully' });
+
+    }catch(err){
+        console.error("Error while updating inventory",err);
+        res.status(500).json({message :"Internal Server Error"})
+    }
+}
