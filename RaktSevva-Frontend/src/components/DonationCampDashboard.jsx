@@ -120,7 +120,7 @@ const DonationCampDashboard = () => {
         }
     };
     return (
-        <div className="flex flex-col max-h-screen min-h-screen bg-red-100">
+        <div className="flex flex-col max-h-screen min-h-screen bg-red-100 overflow-x-hidden">
             <header className="p-4 bg-white flex items-center justify-between fixed w-full shadow-xl shadow-red-300 bg-opacity-10 backdrop-blur-lg">
                 <div className="flex items-center">
                     <img className="h-12" src={imgLogo} alt="Rakt Sevva Logo" />

@@ -161,7 +161,7 @@ function HospitalDashboard() {
 
     return (
         <>
-            <div className='bg-red-100 w-full min-h-screen'>
+            <div className='bg-red-100 w-full min-h-screen overflow-x-hidden'>
                 {/* Navbar */}
                 <div className="bg-white w-full h-24 fixed top-0 z-10 shadow-xl shadow-red-300 bg-opacity-10 backdrop-blur-lg">
                     <div className="flex justify-between items-center h-full px-8">
